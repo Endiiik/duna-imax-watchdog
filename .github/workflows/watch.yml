@@ -45,7 +45,7 @@ jobs:
             duna3:část třetí
           AUDITORIUM_PATTERN: imax
           # Od kolika nově uvolněných míst u jednoho promítání hlásit.
-          MIN_SEAT_DELTA: "2"
+          MIN_SEAT_DELTA: "4"
         run: |
           set -euo pipefail
           while IFS=: read -r slug pattern; do

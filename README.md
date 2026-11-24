@@ -3,7 +3,7 @@
 Hlídá rozpis **Cinema City Praha Flora** a ozve se, když:
 
 - přibude nové promítání **Duny: část třetí v IMAXu**, nebo
-- se u už vypsaného promítání **uvolní místa** (výchozí práh: aspoň 2 místa
+- se u už vypsaného promítání **uvolní místa** (práh: aspoň 4 místa
   oproti minulé kontrole; přírůstky po jednom místě se sčítají).
 
 Hlášení přijde jako issue přiřazené vlastníkovi repa, takže GitHub pošle
@@ -31,7 +31,7 @@ počítačem.
 | --- | --- | --- |
 | `FILMS` | `duna3:část třetí` | řádky `slug:podřetězec názvu filmu` |
 | `AUDITORIUM_PATTERN` | `imax` | podřetězec názvu sálu |
-| `MIN_SEAT_DELTA` | `2` | od kolika uvolněných míst hlásit (1 = každé místo) |
+| `MIN_SEAT_DELTA` | `4` | od kolika uvolněných míst hlásit (1 = každé místo) |
 | `HALL_CAPACITY` | dopočítá se | kapacitu jde zadat ručně, např. `385` |
 
 ## Ruční spuštění
