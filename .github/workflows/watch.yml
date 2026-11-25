@@ -1,15 +1,15 @@
 name: Duna 3 IMAX watchdog
 
-# Každých ~15 minut zkontroluje rozpis Cinema City Flora. Když přibude
-# promítání Duny: část třetí v IMAXu, nebo se u existujícího uvolní místa,
-# založí issue (GitHub z něj pošle e-mail i push do mobilní appky).
+# Hlídá rozpis Cinema City Flora. Když přibude promítání Duny: část třetí
+# v IMAXu, zmizí, nebo se u něj uvolní místa, založí issue (GitHub z něj pošle
+# e-mail i push do mobilní appky).
 #
-# Naplánováno 4× za hodinu: GitHub u scheduled workflows běhy pod zátěží
-# občas zahazuje. Minuty schválně mimo :00 a :30, ať netrefí špičku.
+# GitHub cron u malých repozitářů spolehlivě neběží (za 17 h proběhly 3 běhy
+# místo ~68). Proto jeden běh udělá 5 kontrol po 10 minutách (~45 min) a na
+# konci si sám spustí další běh. Cron je jen záloha pro obnovení řetězu.
 on:
   schedule:
-    - cron: "8,38 * * * *"
-    - cron: "21,51 * * * *"
+    - cron: "17 */2 * * *"
   workflow_dispatch:
     inputs:
       force_report:
@@ -17,7 +17,8 @@ on:
         type: boolean
         default: false
 
-# Stav se commituje zpátky do repa — souběžné běhy by si přepsaly commit.
+# Vždy běží jen jeden řetěz. Nový běh čeká, než doběhne předchozí; z čekajících
+# zůstane jen jeden, takže se záložní cron s řetězem sloučí.
 concurrency:
   group: watchdog
   cancel-in-progress: false
@@ -25,11 +26,12 @@ concurrency:
 permissions:
   contents: write
   issues: write
+  actions: write   # aby si běh mohl spustit další
 
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v5
 
@@ -37,60 +39,29 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Zkontrolovat rozpis
-        # Řádky "slug:podřetězec názvu filmu". API vrací české názvy.
-        # Když změníš existující řádek, smaž i jeho state/<slug>.json.
+      - name: Kontroly rozpisu
         env:
+          GH_TOKEN: ${{ github.token }}
+          # Řádky "slug:podřetězec názvu filmu". API vrací české názvy.
+          # Když změníš existující řádek, smaž i jeho state/<slug>.json.
           FILMS: |
             duna3:část třetí
           AUDITORIUM_PATTERN: imax
           # Od kolika nově uvolněných míst u jednoho promítání hlásit.
           MIN_SEAT_DELTA: "4"
-        run: |
-          set -euo pipefail
-          while IFS=: read -r slug pattern; do
-            [ -n "$slug" ] || continue
-            echo "::group::$slug (film ~ $pattern)"
-            FILM_PATTERN="$pattern" python3 watch.py \
-              --state "state/$slug.json" \
-              --report "report-$slug.md" \
-              --title "title-$slug.txt" \
-              ${{ inputs.force_report && '--force-report' || '' }}
-            echo "::endgroup::"
-          done <<< "$FILMS"
+          CHECKS: "5"
+          INTERVAL: "600"
+          FORCE_REPORT: ${{ inputs.force_report && 'true' || 'false' }}
+        run: bash run_checks.sh
 
-      - name: Založit issue s novinkami
+      - name: Spustit další běh
+        # Jen na hlavní větvi; řetěz zastavíš přes Actions → Disable workflow.
+        if: always() && github.ref == 'refs/heads/main'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          # Přiřazení vlastníkovi je klíčové: e-mail chodí defaultně jen
-          # u "Participating" notifikací (přiřazení, zmínky).
-          shopt -s nullglob
-          for report in report-*.md; do
-            slug=${report#report-}; slug=${slug%.md}
-            url=$(gh issue create \
-              --title "$(cat "title-$slug.txt")" \
-              --body-file "$report" \
-              --assignee "${{ github.repository_owner }}")
-            echo "Založeno ($slug): $url"
-            # Issue je jen doručovací kanál — notifikace odejde při založení.
-            gh issue close "$url" --reason completed
+          for i in 1 2 3 4 5; do
+            gh workflow run watch.yml --ref main && exit 0
+            sleep $((i * 15))
           done
-
-      - name: Uložit stav zpátky do repa
-        run: |
-          rm -f report-*.md title-*.txt
-          if [ -z "$(git status --porcelain -- state/)" ]; then
-            echo "Stav beze změny, není co commitovat."
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add state/
-          git commit -m "Aktualizace stavu rozpisu ($(date -u '+%Y-%m-%d %H:%M UTC'))"
-          for i in 1 2 3; do
-            git pull --rebase --quiet origin "${GITHUB_REF_NAME}" && git push && exit 0
-            sleep 5
-          done
-          echo "::error::Push stavu se nepovedl."
-          exit 1
+          echo "::warning::Další běh se nepodařilo spustit, obnoví ho záložní cron."

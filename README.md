@@ -10,8 +10,10 @@ Hlášení přijde jako issue přiřazené vlastníkovi repa, takže GitHub poš
 e-mail i push do mobilní aplikace GitHub. Issue se hned zavírá, slouží jen
 jako doručovací kanál.
 
-Běží v GitHub Actions každých ~15 minut, takže funguje i v noci a s vypnutým
-počítačem.
+Běží v GitHub Actions a kontroluje každých ~10 minut, takže funguje i v noci
+a s vypnutým počítačem. Jeden běh udělá 5 kontrol po 10 minutách a na konci si
+sám spustí další (GitHub cron u malých repozitářů spolehlivě neběží). Záložní
+cron každé 2 hodiny řetěz obnoví, kdyby se přerušil.
 
 ## Jak to funguje
 
@@ -33,6 +35,7 @@ počítačem.
 | `AUDITORIUM_PATTERN` | `imax` | podřetězec názvu sálu |
 | `MIN_SEAT_DELTA` | `4` | od kolika uvolněných míst hlásit (1 = každé místo) |
 | `HALL_CAPACITY` | dopočítá se | kapacitu jde zadat ručně, např. `385` |
+| `CHECKS` / `INTERVAL` | `5` / `600` | kontrol v jednom běhu / rozestup v sekundách |
 
 ## Ruční spuštění
 
@@ -42,7 +45,9 @@ počítačem.
 ## Poznámky
 
 - Repo musí být **veřejné**, jinak běhy čerpají limit 2 000 minut Actions
-  měsíčně a 4 běhy za hodinu by ho přečerpaly.
+  měsíčně a nepřetržitý běh by ho přečerpal.
+- Když GitHub API vrátí chybu, `gh` to zkusí znovu; když hlášení nejde založit
+  vůbec, nahlásí se při další kontrole (stav se kvůli tomu neuloží).
 - Až Duna dohraje: Actions → *Disable workflow*.
 
 Vychází z [dualisimo/cinemacity-watchdog](https://github.com/dualisimo/cinemacity-watchdog),
