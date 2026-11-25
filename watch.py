@@ -35,6 +35,7 @@ HINT_ATTR = os.environ.get("HINT_ATTR", "70-mm")
 DELAY = float(os.environ.get("REQUEST_DELAY", "0.25"))
 # Od kolika uvolněných míst (oproti poslednímu běhu) se má hlásit. Jedno místo
 # často jen „problikne“, když někdo opustí košík, proto výchozí 2.
+# 0 = hlášení uvolněných míst vypnuté (počty se dál ukládají do stavu).
 MIN_SEAT_DELTA = int(os.environ.get("MIN_SEAT_DELTA", "2"))
 # Kapacita sálu, když ji nechceš nechat dopočítat (např. 385 pro IMAX Flora).
 HALL_CAPACITY = int(os.environ.get("HALL_CAPACITY", "0")) or None
@@ -381,9 +382,9 @@ def main():
             old_free, new_free = old.get("free"), v.get("free")
             if old_free is None or new_free is None:
                 continue
-            if new_free - old_free >= MIN_SEAT_DELTA:
+            if MIN_SEAT_DELTA > 0 and new_free - old_free >= MIN_SEAT_DELTA:
                 freed.append((v, new_free - old_free))
-            elif new_free > old_free:
+            elif MIN_SEAT_DELTA > 0 and new_free > old_free:
                 # Přírůstek pod prahem nehlásíme, ale ani nezapomeneme: ve stavu
                 # zůstane stará hodnota, takže +1 a pak +1 se nahlásí jako +2.
                 v["free"] = old_free

@@ -3,17 +3,18 @@
 Hlídá rozpis **Cinema City Praha Flora** a ozve se, když:
 
 - přibude nové promítání **Duny: část třetí v IMAXu**, nebo
-- se u už vypsaného promítání **uvolní místa** (práh: aspoň 4 místa
-  oproti minulé kontrole; přírůstky po jednom místě se sčítají).
+- se u už vypsaného promítání **uvolní místa** — teď **vypnuté**
+  (`MIN_SEAT_DELTA: "0"`); zapne se nastavením prahu, např. `"4"`.
 
 Hlášení přijde jako issue přiřazené vlastníkovi repa, takže GitHub pošle
 e-mail i push do mobilní aplikace GitHub. Issue se hned zavírá, slouží jen
 jako doručovací kanál.
 
-Běží v GitHub Actions a kontroluje každých ~10 minut, takže funguje i v noci
-a s vypnutým počítačem. Jeden běh udělá 5 kontrol po 10 minutách a na konci si
-sám spustí další (GitHub cron u malých repozitářů spolehlivě neběží). Záložní
-cron každé 2 hodiny řetěz obnoví, kdyby se přerušil.
+Běží v GitHub Actions, takže funguje i v noci a s vypnutým počítačem.
+Kontroluje **1× za hodinu**; jakmile jsou v rozpisu termíny od **ledna 2027**
+(`FAST_FROM`), přepne se na **každých 30 minut**. Běh zkontroluje rozpis,
+počká a na konci si sám spustí další (GitHub cron u malých repozitářů
+spolehlivě neběží). Záložní cron každé 2 hodiny řetěz obnoví, kdyby se přerušil.
 
 ## Jak to funguje
 
@@ -33,9 +34,10 @@ cron každé 2 hodiny řetěz obnoví, kdyby se přerušil.
 | --- | --- | --- |
 | `FILMS` | `duna3:část třetí` | řádky `slug:podřetězec názvu filmu` |
 | `AUDITORIUM_PATTERN` | `imax` | podřetězec názvu sálu |
-| `MIN_SEAT_DELTA` | `4` | od kolika uvolněných míst hlásit (1 = každé místo) |
+| `MIN_SEAT_DELTA` | `0` | od kolika uvolněných míst hlásit (0 = vypnuto, 1 = každé místo) |
 | `HALL_CAPACITY` | dopočítá se | kapacitu jde zadat ručně, např. `385` |
-| `CHECKS` / `INTERVAL` | `5` / `600` | kontrol v jednom běhu / rozestup v sekundách |
+| `INTERVAL_SLOW` / `INTERVAL_FAST` | `3600` / `1800` | čekání mezi kontrolami před / po objevení termínů od `FAST_FROM` |
+| `FAST_FROM` | `2027-01-01` | od jakého data termínů se kontroluje častěji |
 
 ## Ruční spuštění
 

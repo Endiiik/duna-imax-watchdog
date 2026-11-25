@@ -5,8 +5,11 @@ name: Duna 3 IMAX watchdog
 # e-mail i push do mobilní appky).
 #
 # GitHub cron u malých repozitářů spolehlivě neběží (za 17 h proběhly 3 běhy
-# místo ~68). Proto jeden běh udělá 5 kontrol po 10 minutách (~45 min) a na
-# konci si sám spustí další běh. Cron je jen záloha pro obnovení řetězu.
+# místo ~68). Proto běh zkontroluje rozpis, počká do další kontroly a na konci
+# si sám spustí další běh. Cron je jen záloha pro obnovení řetězu.
+#
+# Interval: 1× za hodinu, dokud nejsou v rozpisu termíny od FAST_FROM
+# (leden 2027); jakmile se objeví, každých 30 minut.
 on:
   schedule:
     - cron: "17 */2 * * *"
@@ -31,7 +34,7 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 80
     steps:
       - uses: actions/checkout@v5
 
@@ -48,9 +51,14 @@ jobs:
             duna3:část třetí
           AUDITORIUM_PATTERN: imax
           # Od kolika nově uvolněných míst u jednoho promítání hlásit.
-          MIN_SEAT_DELTA: "4"
-          CHECKS: "5"
-          INTERVAL: "600"
+          # 0 = hlášení uvolněných míst vypnuté.
+          MIN_SEAT_DELTA: "0"
+          # Kontrol v jednom běhu; po každé se čeká INTERVAL_SLOW, nebo
+          # INTERVAL_FAST, jakmile je v rozpisu termín od FAST_FROM.
+          CHECKS: "1"
+          INTERVAL_SLOW: "3600"
+          INTERVAL_FAST: "1800"
+          FAST_FROM: "2027-01-01"
           FORCE_REPORT: ${{ inputs.force_report && 'true' || 'false' }}
         run: bash run_checks.sh
 

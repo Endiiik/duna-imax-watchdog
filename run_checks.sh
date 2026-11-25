@@ -1,15 +1,37 @@
 #!/usr/bin/env bash
-# Několik kontrol rozpisu za sebou v jednom běhu workflow.
+# Kontrola rozpisu s čekáním do další kontroly, v jednom běhu workflow.
 #
 # Proč: GitHub plánované (cron) běhy u malých repozitářů hodně vynechává —
-# místo 4× za hodinu proběhly za 17 hodin jen 3. Proto jeden běh zkontroluje
-# rozpis CHECKS× s rozestupem INTERVAL sekund a na konci si sám spustí další
-# běh (viz workflow). Cron zůstává jen jako záloha, kdyby se řetěz přerušil.
+# místo 4× za hodinu proběhly za 17 hodin jen 3. Proto běh zkontroluje rozpis
+# CHECKS×, po každé kontrole počká a na konci si sám spustí další běh (viz
+# workflow). Cron zůstává jen jako záloha, kdyby se řetěz přerušil.
+#
+# Čekání se řídí tím, co už je v rozpisu: dokud žádné hlídané promítání
+# nemá datum od FAST_FROM, čeká se INTERVAL_SLOW sekund, potom INTERVAL_FAST.
 set -euo pipefail
 
-CHECKS=${CHECKS:-5}
-INTERVAL=${INTERVAL:-600}
+CHECKS=${CHECKS:-1}
+INTERVAL_SLOW=${INTERVAL_SLOW:-3600}
+INTERVAL_FAST=${INTERVAL_FAST:-1800}
+FAST_FROM=${FAST_FROM:-2027-01-01}
 FORCE=${FORCE_REPORT:-false}
+
+# Vypíše, kolik sekund čekat do další kontroly.
+next_interval() {
+  if python3 - "$FAST_FROM" state/*.json <<'PY'
+import json, sys
+since = sys.argv[1]
+for path in sys.argv[2:]:
+    try:
+        events = json.load(open(path, encoding="utf-8")).get("events", {})
+    except (OSError, ValueError):
+        continue
+    if any(e.get("datetime", "") >= since for e in events.values()):
+        sys.exit(0)
+sys.exit(1)
+PY
+  then echo "$INTERVAL_FAST"; else echo "$INTERVAL_SLOW"; fi
+}
 
 # gh s opakováním — GitHub API občas vrátí 502 (tak selhal běh #4).
 gh_retry() {
@@ -86,6 +108,8 @@ for n in $(seq 1 "$CHECKS"); do
   echo "=== Kontrola $n/$CHECKS ($(TZ=Europe/Prague date '+%H:%M'))"
   check_once
   FORCE=false   # vynucené hlášení jen při první kontrole
-  if [ "$n" -lt "$CHECKS" ]; then sleep "$INTERVAL"; fi
+  wait_s=$(next_interval)
+  echo "Další kontrola za $((wait_s / 60)) min (zrychlení od termínů $FAST_FROM)."
+  sleep "$wait_s"
 done
 exit 0
