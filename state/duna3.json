@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-26T01:48:09",
+ "updated": "2026-11-26T02:49:15",
  "events": {
   "248952": {
    "id": "248952",
@@ -497,9 +497,9 @@
    ],
    "booking": "https://tickets.cinemacity.cz/order/291584",
    "soldOut": false,
-   "ratio": 0.8857,
+   "ratio": 0.8727,
    "capacity": 385,
-   "free": 341
+   "free": 336
   },
   "291585": {
    "id": "291585",
@@ -522,9 +522,9 @@
    ],
    "booking": "https://tickets.cinemacity.cz/order/291585",
    "soldOut": false,
-   "ratio": 0.7506,
+   "ratio": 0.7403,
    "capacity": 385,
-   "free": 289
+   "free": 285
   },
   "291586": {
    "id": "291586",
@@ -597,9 +597,9 @@
    ],
    "booking": "https://tickets.cinemacity.cz/order/291588",
    "soldOut": false,
-   "ratio": 0.761,
+   "ratio": 0.7351,
    "capacity": 385,
-   "free": 293
+   "free": 283
   },
   "291589": {
    "id": "291589",
@@ -772,9 +772,9 @@
    ],
    "booking": "https://tickets.cinemacity.cz/order/291595",
    "soldOut": false,
-   "ratio": 0.7922,
+   "ratio": 0.787,
    "capacity": 385,
-   "free": 305
+   "free": 303
   },
   "291596": {
    "id": "291596",
