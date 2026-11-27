@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-27T03:10:13",
+ "updated": "2026-11-27T06:12:27",
  "events": {
   "248952": {
    "id": "248952",
@@ -847,9 +847,9 @@
    ],
    "booking": "https://tickets.cinemacity.cz/order/291597",
    "soldOut": false,
-   "ratio": 0.4156,
+   "ratio": 0.4104,
    "capacity": 385,
-   "free": 160
+   "free": 158
   },
   "291598": {
    "id": "291598",
