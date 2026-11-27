@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-27T20:25:06",
+ "updated": "2026-11-27T21:25:56",
  "events": {
   "248952": {
    "id": "248952",
@@ -497,9 +497,9 @@
    ],
    "booking": "https://tickets.cinemacity.cz/order/267928",
    "soldOut": false,
-   "ratio": 0.0675,
+   "ratio": 0.0727,
    "capacity": 385,
-   "free": 26
+   "free": 28
   },
   "291584": {
    "id": "291584",
@@ -622,9 +622,9 @@
    ],
    "booking": "https://tickets.cinemacity.cz/order/291588",
    "soldOut": false,
-   "ratio": 0.4675,
+   "ratio": 0.4571,
    "capacity": 385,
-   "free": 180
+   "free": 176
   },
   "291589": {
    "id": "291589",
@@ -647,9 +647,9 @@
    ],
    "booking": "https://tickets.cinemacity.cz/order/291589",
    "soldOut": false,
-   "ratio": 0.5688,
+   "ratio": 0.5558,
    "capacity": 385,
-   "free": 219
+   "free": 214
   },
   "291590": {
    "id": "291590",
@@ -697,9 +697,9 @@
    ],
    "booking": "https://tickets.cinemacity.cz/order/291591",
    "soldOut": false,
-   "ratio": 0.4545,
+   "ratio": 0.4494,
    "capacity": 385,
-   "free": 175
+   "free": 173
   },
   "291592": {
    "id": "291592",
@@ -747,9 +747,9 @@
    ],
    "booking": "https://tickets.cinemacity.cz/order/291593",
    "soldOut": false,
-   "ratio": 0.4753,
+   "ratio": 0.4701,
    "capacity": 385,
-   "free": 183
+   "free": 181
   },
   "291594": {
    "id": "291594",
@@ -797,9 +797,9 @@
    ],
    "booking": "https://tickets.cinemacity.cz/order/291595",
    "soldOut": false,
-   "ratio": 0.5143,
+   "ratio": 0.4883,
    "capacity": 385,
-   "free": 198
+   "free": 188
   },
   "291596": {
    "id": "291596",
@@ -822,9 +822,9 @@
    ],
    "booking": "https://tickets.cinemacity.cz/order/291596",
    "soldOut": false,
-   "ratio": 0.4675,
+   "ratio": 0.4623,
    "capacity": 385,
-   "free": 180
+   "free": 178
   },
   "291597": {
    "id": "291597",
@@ -872,9 +872,9 @@
    ],
    "booking": "https://tickets.cinemacity.cz/order/291598",
    "soldOut": false,
-   "ratio": 0.5117,
+   "ratio": 0.5065,
    "capacity": 385,
-   "free": 197
+   "free": 195
   }
  }
 }
